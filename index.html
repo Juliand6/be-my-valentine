@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unlock 💖</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: white;
+      text-align: center;
+    }
+    .card {
+      width: min(520px, 92vw);
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    h1, h2 { margin: 0 0 8px; }
+    p { margin: 8px 0; }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 14px 0 6px;
+      font-weight: 1000;
+    }
+
+    .btn {
+      border: none;
+      padding: 12px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 16px;
+      background: white;
+      color: #ff4d6d;
+      margin-top: 10px;
+    }
+    .btn:active { transform: scale(0.98); }
+
+    .quiz-btns {
+      display: grid;
+      gap: 10px;
+      margin: 10px 0 18px;
+    }
+
+    .heart {
+      position: absolute;
+      font-size: 34px;
+      user-select: none;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
+      animation: floatUp 1.8s linear forwards;
+    }
+    @keyframes floatUp {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translate(-50%, calc(-50% - 160px)); }
+    }
+
+    .val-btns {
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top: 12px;
+    }
+    .yes { background:#ff4d6d; color:white; }
+    .no  { background:#eee; color:#333; position: relative; }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="gameScreen">
+    <h1>Unlock the surprise 💝</h1>
+    <p>Collect <b>10 hearts</b> to unlock the next step.</p>
+
+    <div class="hud">
+      <div>Hearts: <span id="score">0</span>/10</div>
+      <div>Time: <span id="time">20</span>s</div>
+    </div>
+
+    <p style="opacity:0.95;">Tip: click/tap hearts as they appear ✨</p>
+    <button class="btn" id="startBtn">Start</button>
+  </div>
+
+  <script>
+
+    const goal = 10;    
+    const totalTime = 20;
+
+
+    let score = 0;
+    let timeLeft = totalTime;
+    let timer = null;
+    let spawner = null;
+    let running = false;
+
+    const scoreEl = document.getElementById("score");
+    const timeEl = document.getElementById("time");
+    const startBtn = document.getElementById("startBtn");
+
+    startBtn.addEventListener("click", startGame);
+
+    function startGame() {
+      if (running) return;
+      running = true;
+      score = 0;
+      timeLeft = totalTime;
+
+      scoreEl.textContent = score;
+      timeEl.textContent = timeLeft;
+
+      startBtn.textContent = "Good luck 😌";
+      startBtn.disabled = true;
+
+      timer = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        if (timeLeft <= 0) endGame(false);
+      }, 1000);
+
+      spawner = setInterval(spawnHeart, 520);
+      spawnHeart();
+    }
+
+    function spawnHeart() {
+      if (!running) return;
+
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.textContent = "💖";
+
+      const x = 10 + Math.random() * 80; // vw
+      const y = 25 + Math.random() * 55; // vh
+
+      heart.style.left = x + "vw";
+      heart.style.top = y + "vh";
+
+      heart.addEventListener("click", () => {
+        if (!running) return;
+        score++;
+        scoreEl.textContent = score;
+        heart.remove();
+
+        if (score >= goal) endGame(true);
+      });
+
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1800);
+    }
+
+    function endGame(won) {
+      running = false;
+      clearInterval(timer);
+      clearInterval(spawner);
+
+      document.querySelectorAll(".heart").forEach(h => h.remove());
+
+      if (won) {
+        showQuiz();
+      } else {
+        startBtn.disabled = false;
+        startBtn.textContent = "Try again 💗";
+        timeLeft = totalTime;
+        timeEl.textContent = timeLeft;
+      }
+    }
+
+ 
+    let correct = 0;
+    let answered = 0;
+    let qIndex = 0;
+
+  
+    const quiz = [
+      {
+        q: "1) When is our Anniversary?",
+        options: [
+          { text: "June 20, 2023", correct: true },
+          { text: "June 25, 2023", correct: false },
+          { text: "June 20, 2024", correct: false },
+          { text: "April 29, 2002", correct: false }
+        ]
+      },
+      {
+        q: "2) What's OUR game?",
+        options: [
+          { text: "Fortnite 🥰", correct: false },
+          { text: "Valorant 😌", correct: false },
+          { text: "REPO 😌", correct: false },
+          { text: "Escape Simulator 😌", correct: false }
+        ]
+      },
+      {
+        q: "3) What do I miss the most?",
+        options: [
+          { text: "Tyler, the creator", correct: false },
+          { text: "Tiktok 😴", correct: false },
+          { text: "You ❤️", correct: true },
+          { text: "Valorant😌", correct: false }
+        ]
+      }
+    ];
+
+    function showQuiz() {
+      correct = 0;
+      answered = 0;
+      qIndex = 0;
+      renderQuizQuestion();
+    }
+
+    function renderQuizQuestion() {
+      const item = quiz[qIndex];
+
+      document.body.innerHTML = `
+        <div class="card">
+          <h2>Before you unlock it… 💭</h2>
+          <p>Answer these 3 questions 😉</p>
+
+          <p style="font-size:18px; font-weight:700; margin-top:14px;">
+            ${item.q}
+          </p>
+
+          <div class="quiz-btns">
+            <button class="btn" onclick="answer(${item.options[0].correct})">${item.options[0].text}</button>
+            <button class="btn" onclick="answer(${item.options[1].correct})">${item.options[1].text}</button>
+              <button class="btn" onclick="answer(${item.options[1].correct})">${item.options[2].text}</button>
+                <button class="btn" onclick="answer(${item.options[1].correct})">${item.options[3].text}</button>
+          </div>
+
+          <p style="opacity:0.9;">Question ${qIndex + 1} of ${quiz.length}</p>
+        </div>
+      `;
+    }
+
+    window.answer = function(isCorrect) {
+      answered++;
+      if (isCorrect) correct++;
+
+      qIndex++;
+
+      if (qIndex >= quiz.length) {
+        if (correct >= 2) {
+          showValentine();
+        } else {
+          retryQuiz();
+        }
+      } else {
+        renderQuizQuestion();
+      }
+    }
+
+    function retryQuiz() {
+      document.body.innerHTML = `
+        <div class="card">
+          <h2>Almost 😅</h2>
+          <p> try again 💕</p>
+          <button class="btn" onclick="showQuiz()">Retry</button>
+        </div>
+      `;
+    }
+
+
+    function showValentine() {
+      document.body.innerHTML = `
+        <div class="card">
+          <h2>Unlocked 💌</h2>
+          <p style="font-size:18px;">
+            I miss you. I love you. And I have a question…
+          </p>
+
+          <h1 style="margin:10px 0 0;">Will you be my Valentine? 💘</h1>
+
+          <div class="val-btns">
+            <button class="btn yes" onclick="yes()">YES 💕</button>
+            <button class="btn no" id="noBtn" onmouseover="dodge()">NO 😅</button>
+          </div>
+
+        </div>
+      `;
+    }
+
+
+    window.yes = function() {
+      document.body.innerHTML = `
+        <div class="card">
+          <h1 style="margin:0;">YAY!!! 💖💖💖</h1>
+          <p style="font-size:18px;">
+            You just made me the happiest person ever 🥰<br/>
+            Happy Valentine’s, my love.
+          </p>
+        </div>
+      `;
+    }
+
+    window.dodge = function() {
+      const b = document.getElementById("noBtn");
+      if (!b) return;
+      const dx = (Math.random() * 240) - 120;
+      const dy = (Math.random() * 140) - 70;
+      b.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+  </script>
+
+</body>
+</html>
