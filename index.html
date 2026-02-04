@@ -222,46 +222,46 @@
       renderQuizQuestion();
     }
 
-    function renderQuizQuestion() {
-      const item = quiz[qIndex];
+function renderQuizQuestion() {
+  const item = quiz[qIndex];
 
-      document.body.innerHTML = `
-        <div class="card">
-          <h2>Before you unlock it… 💭</h2>
-          <p>Answer these 3 questions 😉</p>
+  document.body.innerHTML = `
+    <div class="card">
+      <h2>Before you unlock it… 💭</h2>
+      <p>Answer these 3 questions 😉</p>
 
-          <p style="font-size:18px; font-weight:700; margin-top:14px;">
-            ${item.q}
-          </p>
+      <p style="font-size:18px; font-weight:700; margin-top:14px;">
+        ${item.q}
+      </p>
 
-          <div class="quiz-btns">
-            <button class="btn" onclick="answer(${item.options[0].correct})">${item.options[0].text}</button>
-            <button class="btn" onclick="answer(${item.options[1].correct})">${item.options[1].text}</button>
-              <button class="btn" onclick="answer(${item.options[2].correct})">${item.options[2].text}</button>
-                <button class="btn" onclick="answer(${item.options[3].correct})">${item.options[3].text}</button>
-          </div>
+      <div class="quiz-btns">
+        ${item.options.map((opt, i) =>
+          `<button class="btn" onclick="answer(${i})">${opt.text}</button>`
+        ).join("")}
+      </div>
 
-          <p style="opacity:0.9;">Question ${qIndex + 1} of ${quiz.length}</p>
-        </div>
-      `;
-    }
+      <p style="opacity:0.9;">Question ${qIndex + 1} of ${quiz.length}</p>
+    </div>
+  `;
+}
 
-    window.answer = function(isCorrect) {
-      answered++;
-      if (isCorrect) correct++;
 
-      qIndex++;
+    window.answer = function(optionIndex) {
+  const item = quiz[qIndex];
 
-      if (qIndex >= quiz.length) {
-        if (correct >= 2) {
-          showValentine();
-        } else {
-          retryQuiz();
-        }
-      } else {
-        renderQuizQuestion();
-      }
-    }
+  answered++;
+  if (item.options[optionIndex].correct) correct++;
+
+  qIndex++;
+
+  if (qIndex >= quiz.length) {
+    if (correct >= 2) showValentine();
+    else retryQuiz();
+  } else {
+    renderQuizQuestion();
+  }
+}
+
 
     function retryQuiz() {
       document.body.innerHTML = `
